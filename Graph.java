@@ -1,5 +1,5 @@
 import java.util.*;
-import java.util.stream.Collectors;
+
 public class Graph {
     private final Set<Integer> vertices; // Множество вершин графа
     private final List<Edge> edges;      // Список рёбер графа
