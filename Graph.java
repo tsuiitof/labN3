@@ -109,11 +109,6 @@ public class Graph {
         return adjacencyList; // Возвращаем построенный список смежности
     }
 
-    // 8. Подсчёт количества компонент связности в графе
-    public int countConnectedComponents(Graph graph) {
-        return getConnectedComponents(graph).size();
-    }
-
     // 9. Поиск компонент связности
     public List<List<Integer>> getConnectedComponents(Graph graph) {
         Map<Integer, Set<Integer>> adjacencyList = buildAdjacencyList(); // Строим список смежности
