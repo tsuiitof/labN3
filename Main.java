@@ -26,12 +26,13 @@ class Main {
         // Отображаем вершины, достижимые за 2 хода из вершины k
         showGraph.displayReachableInTwoSteps(2);
 
-        // Отображаем вершины, достижимые за 3 хода из вершины k
+        // Отображаем вершины, достижимые за n ходов из вершины k
         showGraph.displayReachableInSteps(3, 5);
 
         // Отображение вершин с количеством входящих рёбер больше k
         showGraph.getVerticesMore(1);
 
+        // удаляем ребро
         graph.removeEdge(4, 5);
         showGraph.displayEdges();
 
@@ -53,6 +54,7 @@ class Main {
         graph.addEdge(1, 5);
         graph.addEdge(5, 7);
         graph.addEdge(7, 8);
+        showGraph.displayEdges();
 
         // Отображение свойств графа
         showGraph.displayGraphProperties();
