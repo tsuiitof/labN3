@@ -2,6 +2,7 @@ import java.util.*;
 public class Graph {
     private final Set<Integer> vertices; // Множество вершин графа
     private final List<Edge> edges;      // Список рёбер графа
+    private boolean directed; //  Флаг, указывающий, является ли граф направленным
 
     // Конструктор для создания пустого графа.
     public Graph() {
@@ -109,6 +110,7 @@ public class Graph {
         return adjacencyList; // Возвращаем построенный список смежности
     }
 
+
     // 9. Поиск компонент связности
     public List<List<Integer>> getConnectedComponents(Graph graph) {
         Map<Integer, Set<Integer>> adjacencyList = buildAdjacencyList(); // Строим список смежности
@@ -159,19 +161,19 @@ public class Graph {
 
     // 11. Поиск вершин, достижимых за заданное количество шагов
     public static Set<Integer> getVerticesReachableInKSteps(Graph graph, int start, int steps) {
-        Set<Integer> reachable = new HashSet<>();
-        Set<Integer> current = new HashSet<>();
-        current.add(start);
+        Set<Integer> reachable = new HashSet<>(); // мн-во будет содержать все вершины, которые достижимы за указанное количество шагов
+        Set<Integer> current = new HashSet<>(); // Мн-во  хранит вершины, которые достижимы на текущем шаге.
+        current.add(start); // изначально у нас есть только начальная вершина
 
         for (int i = 0; i < steps; i++) {
-            Set<Integer> next = new HashSet<>();
-            for (int vertex : current) {
-                if (graph.buildAdjacencyList().containsKey(vertex)) {
+            Set<Integer> next = new HashSet<>(); // для каждого шага создаем новое мн-во
+            for (int vertex : current) { // проходимся по всем вершинам
+                if (graph.buildAdjacencyList().containsKey(vertex)) { // ищем соседей вершины
                     next.addAll(graph.buildAdjacencyList().get(vertex));
                 }
             }
-            reachable.addAll(next);
-            current = next;
+            reachable.addAll(next); // добавляем найденные вершины в мн-во next
+            current = next; // Множество current обновляется и становится равным next
         }
         return reachable;
     }
@@ -183,13 +185,18 @@ public class Graph {
         sumGraph.vertices.addAll(other.vertices); // Добавляем вершины из другого графа
         sumGraph.edges.addAll(this.edges); // Добавляем рёбра из текущего графа
         sumGraph.edges.addAll(other.edges);// Добавляем рёбра из другого графа
-
     }
 
     // 13. Проверка на полноту графа
     public boolean isComplete() {
         int n = vertices.size(); // Количество вершин
-        int expectedEdges = (n * (n - 1)) ; // Ожидаемое количество рёбер в полном графе (без петель)
+        int expectedEdges;
+        // Для направленного графа рёбер должно быть n * (n - 1)
+        if (directed)
+            expectedEdges = n * (n - 1);
+        else
+            // Для ненаправленного графа рёбер должно быть (n * (n - 1)) / 2
+            expectedEdges = (n * (n - 1)) / 2;
         return edges.size() == expectedEdges; // Сравниваем текущее количество рёбер с ожидаемым
     }
 
