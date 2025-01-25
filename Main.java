@@ -45,6 +45,10 @@ class Main {
         graph.removeVertex(3);
         showGraph.displayEdges();
 
+        // Удаляем вершину с мин. кол-вом ребер и повторно отображаем граф
+        graph.removeVerticesWithMinIncomingEdges();
+        showGraph.displayEdges();
+
         // Добавляем несколько новых рёбер
         graph.addEdge(1, 5);
         graph.addEdge(5, 7);
