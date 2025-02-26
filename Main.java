@@ -1,71 +1,90 @@
-import java.util.Scanner;
-class Main {
-    public static Scanner in = new Scanner(System.in);
+public class Main {
     public static void main(String[] args) {
-        // Создаем граф
-        Graph graph = new Graph();
+        Graph graph = new Graph(20, 20);
 
-        // Добавляем рёбра в граф
+        // 1. Добавление рёбер
         graph.addEdge(1, 2);
-        graph.addEdge(2, 3);
+        graph.addEdge(2, 4);
         graph.addEdge(1, 3);
-        graph.addEdge(3, 1); // Петля
-        graph.addEdge(4, 5);
-        graph.addEdge(5, 6);
-        graph.addEdge(6, 4);
+        graph.addEdge(2, 5);
+        graph.addEdge(3, 6);
+        graph.addEdge(3, 7);
+        graph.addEdge(4, 8);
+        graph.addEdge(5, 8);
+        graph.addEdge(6, 9);
+        graph.addEdge(7, 9);
+        graph.addEdge(8, 10);
+        graph.addEdge(9, 10);
 
-        // Создаем объект для отображения графа
-        ShowGraph showGraph = new ShowGraph(graph);
+        // 2. Выводим список рёбер
+        graph.printEdges();
 
-        // Отображение всех рёбер
-        showGraph.displayEdges();
+        // 3. Выводим вершины по убыванию
+        graph.printVerticesDescending();
 
-        // Отображение всех вершин по убыванию
-        showGraph.displayVerticesDescending();
+        // 4. Поиск вершин с входящими рёбрами больше заданного числа
+        graph.printVerticesWithIncomingEdgesMoreThan(1);
 
-        // Отображаем вершины, достижимые за 2 хода из вершины k
-        showGraph.displayReachableInTwoSteps(2);
+        // 5. Удаление ребра
+        graph.removeEdge(1, 5);
+        graph.printEdges(); // Проверяем удаление
 
-        // Отображаем вершины, достижимые за n ходов из вершины k
-        showGraph.displayReachableInSteps(3, 5);
+        // 6. Удаление вершины
+        graph.removeVertex(5);
+        graph.printEdges(); // Проверяем удаление
 
-        // Отображение вершин с количеством входящих рёбер больше k
-        showGraph.getVerticesMore(1);
+        // 7. Удаление вершин с наименьшим числом входящих рёбер
+        graph.removeVerticesWithFewestIncomingEdges();
+        graph.printEdges();
 
-        // удаляем ребро
-        graph.removeEdge(4, 5);
-        showGraph.displayEdges();
+        System.out.println("Создан новый граф");
+        Graph graph1 = new Graph(30, 20);
+        // Добавление рёбер
+        graph1.addEdge(1, 2);
+        graph1.addEdge(2, 4);
+        graph1.addEdge(1, 3);
+        graph1.addEdge(2, 5);
+        graph1.addEdge(3, 6);
+        graph1.addEdge(3, 7);
+        graph1.addEdge(4, 8);
+        graph1.addEdge(5, 8);
+        graph1.addEdge(6, 9);
+        graph1.addEdge(7, 9);
+        graph1.addEdge(8, 10);
+        graph1.addEdge(9, 10);
 
-        // Отображение количества компонент графа
-        showGraph.displayConnectedComponentsCount();
+        // Выводим список рёбер
+        graph1.printEdges();
 
-        // Отображение компонент связности
-        showGraph.getConnectedComponents();
+        // 8. Подсчёт компонент связности
+        graph1.countConnectedComponents();
 
-        // Удаляем вершину и повторно отображаем граф
-        graph.removeVertex(3);
-        showGraph.displayEdges();
+        // 9. Поиск компонент связности
+        graph1.findConnectedComponents();
 
-        // Удаляем вершину с мин. кол-вом ребер и повторно отображаем граф
-        graph.removeVerticesWithMinIncomingEdges();
-        showGraph.displayEdges();
+        // 10. Вывод вершин, достижимых за 2 шага из указанной вершины
+        graph1.printVerticesReachableInTwoSteps(2);
 
-        // Добавляем несколько новых рёбер
-        graph.addEdge(1, 5);
-        graph.addEdge(5, 7);
-        graph.addEdge(7, 8);
-        showGraph.displayEdges();
+        // 11. Вывод вершин, достижимых за не более чем n шага из указанной вершины
+        graph1.printVerticesReachableInSteps(1, 4);
 
-        // Отображение свойств графа
-        showGraph.displayGraphProperties();
+        // Создание второго графа для объединения
+        Graph graph2 = new Graph(20, 20);
+        graph2.addEdge(4, 3);
+        graph2.addEdge(6, 5);
+        graph2.addEdge(5, 6);
 
-        // Создаем второй граф
-        Graph graph2 = new Graph();
-        graph2.addEdge(8, 9);
-        graph2.addEdge(9, 10);
+        // 12. Объединение графов
+        graph1.mergeGraph(graph2);
+        graph1.printEdges();
 
-        // Объединяем графы
-        graph.sumGraphs(graph2);
-        showGraph.displayEdges();
+        // 13. Проверка графа на полноту
+        graph1.isCompleteGraph();
+
+        // 14. Проверка графа на пустоту
+        graph1.isEmptyGraph();
+
+        // 15. Наличие петель в графе
+        graph1.hasOnlySelfLoops();
     }
 }
