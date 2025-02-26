@@ -354,7 +354,8 @@ edges[i][1] — вторая вершина текущего ребра.
 Создадим в нем граф и объект для отображения графа. 
 Добавим данные с помощью метода addEdge();
 
-![image](https://github.com/user-attachments/assets/423f9c77-bacb-4320-a3bb-af985d034f53)
+![image](https://github.com/user-attachments/assets/2af917c6-ef28-42df-8d9d-409a85b35675)
+
 
 
 1. showGraph.displayEdges(); - показываем граф
