@@ -1,228 +1,453 @@
-import java.util.*;
-public class Graph {
-    private final Set<Integer> vertices; // Множество вершин графа
-    private final List<Edge> edges;      // Список рёбер графа
-    private boolean directed; //  Флаг, указывающий, является ли граф направленным
+class Graph {
+    private int[][] edges; // массив рёбер
+    private int edgeCount; // текущее количество рёбер
 
-    // Конструктор для создания пустого графа.
-    public Graph() {
-        this.vertices = new HashSet<>();
-        this.edges = new ArrayList<>();
+    private int[] vertices; // массив вершин
+    private int vertexCount; // текущее количество вершин
+
+    public Graph(int maxEdges, int maxVertices) {
+        edges = new int[maxEdges][2];
+        vertices = new int[maxVertices];
+        edgeCount = 0;
+        vertexCount = 0;
     }
 
-    // 1. Вывод всех рёбер графа в порядке их добавления.
-    public List<Edge> printEdges() {
-        return new ArrayList<>(edges); // Возвращает копию списка рёбер
+    private boolean edgeExists(int v1, int v2) {
+        for (int i = 0; i < edgeCount; i++) { // перебираем все добавленные ребра
+            if (edges[i][0] == v1 && edges[i][1] == v2) // если нашли совпадение
+                return true; // такое ребро уже есть
+        }
+        return false; // ребро не найдено
     }
 
-    // 2. Добавление нового ребра в граф.
-    public void addEdge(int from, int to) {
-        Edge newEdge = new Edge(from, to); // Создаём новое ребро
-        if (!edges.contains(newEdge)) { // Проверяем, уникально ли ребро
-            edges.add(newEdge); // Добавляем ребро
-            vertices.add(from); // Добавляем вершины в множество (если они отсутствуют)
-            vertices.add(to);
+    private boolean vertexExists(int v) {
+        for (int i = 0; i < vertexCount; i++) {  // перебираем все вершины
+            if (vertices[i] == v) // усли нашли вершину v
+                return true; // она уже есть
+        }
+        return false; // вершина не найдена
+    }
+
+    private void addVertex(int v) {
+        if (!vertexExists(v)) { // проверяем, есть ли уже такая вершинв
+            if (vertexCount < vertices.length) { // проверяем, есть ли еще место в коде
+                vertices[vertexCount] = v; // записываем вершину в массив
+                vertexCount++; // увеличиваем счётчик после добавления
+            } else
+                System.out.println("Превышен лимит вершин!");
         }
     }
 
-    // 3. Вывод списка вершин графа, отсортированного по убыванию.
-    public List<Integer> printVerticesDescending() {
-        List<Integer> sortedVertices = new ArrayList<>(vertices); // Создаём копию множества вершин
-        sortedVertices.sort(Collections.reverseOrder()); // Сортируем по убыванию
-        return sortedVertices; // Возвращаем отсортированный список вершин
-    }
-
-    // 4. Поиск вершин с количеством входящих рёбер больше заданного числа.
-    public List<Integer> getVerticesMore(int x) { // x - порог количества входящих рёбер
-        Map<Integer, Integer> incomingEdgesCount = new HashMap<>(); // Хранит количество входящих рёбер для каждой вершины
-
-        // Подсчитываем входящие рёбра для каждой вершины
-        for (Edge edge : edges) { // Проходимся по всем ребрам
-            incomingEdgesCount.put(edge.getTo(), incomingEdgesCount.getOrDefault(edge.getTo(), 0) + 1);
+    public void addEdge(int v1, int v2) {
+        if (edgeExists(v1, v2)) { // проверяем, есть ли уже такое ребро
+            System.out.println("Ребро " + v1 + " -> " + v2 + " уже существует!");
+            return;
         }
 
-        // Отбираем вершины, у которых количество входящих рёбер больше порога
-        List<Integer> result = new ArrayList<>();
-        for (Map.Entry<Integer, Integer> entry : incomingEdgesCount.entrySet()) { // Проходимся по всем записям мапы
-            if (entry.getValue() > x) {
-                result.add(entry.getKey());
-            }
-        }
-        return result;
-    }
-    // 5. Удаление указанного ребра из графа.
-    public void removeEdge(int from, int to) {
-        Edge edgeToRemove = new Edge(from, to); // Создаём объект ребра для удаления
-        edges.remove(edgeToRemove); // Удаляем ребро из списка (если оно существует)
-    }
-
-    // 6. Удаление вершины из графа, включая все её входящие и исходящие рёбра.
-    public void removeVertex(int vertex) { // vertex - вершина для удаления
-        // Удаляем рёбра, связанные с данной вершиной
-        Iterator<Edge> iterator = edges.iterator(); // Создаем итератор для обхода коллекции edges
-        while (iterator.hasNext()) { // Цикл проходится по всем ребрам графа
-            Edge edge = iterator.next(); // Получаем текущее ребро
-            if (edge.getFrom() == vertex || edge.getTo() == vertex) { // Проверяем, связано ли текущее ребро с вершиной, которую нужно удалить
-                iterator.remove(); // Удаляем текущее ребро, если оно связано с удаляемой вершиной
-            }
-        }
-        // Удаляем указанную вершину
-        vertices.remove(vertex);
-    }
-
-    // 7. Удаление вершин с минимальным количеством входящих рёбер (без учёта петель).
-    public void removeVerticesWithMinIncomingEdges() {
-        Map<Integer, Integer> incomingEdgesCount = new HashMap<>(); // Храним количество входящих рёбер для каждой вершины
-
-        // Подсчитываем входящие рёбра (исключая петли)
-        for (Edge edge : edges) { // Проход по всем ребрам
-            if (edge.getFrom() != edge.getTo()) { // Исключаем петли
-                incomingEdgesCount.put(edge.getTo(), incomingEdgesCount.getOrDefault(edge.getTo(), 0) + 1);
-            }
-        }
-        if (incomingEdgesCount.isEmpty()) return; // Проверим наличие ребер, чтобы избежать ошибок
-
-        // Находим минимальное количество входящих рёбер
-        int minIncoming = incomingEdgesCount.values().stream().min(Integer::compareTo).orElse(0);
-
-        // Удаляем вершины с минимальным количеством входящих рёбер
-        Set<Integer> verticesToRemove = new HashSet<>(); // Создаем множество вершин, которые нужно удалить
-        for (Map.Entry<Integer, Integer> entry : incomingEdgesCount.entrySet()) { // Обходим все пары (вершина, кол-во входящих ребер)
-            if (entry.getValue() == minIncoming) { // Если кол-во входящих ребер вершины равно минималньому значению
-                verticesToRemove.add(entry.getKey()); // Добавляем эту вершину в созданное множество
-            }
-        }
-        // Удаляем найденные вершины и их рёбра
-        for (int vertex : verticesToRemove) { // Проходимя по всем
-            removeVertex(vertex);
+        if (edgeCount < edges.length) { // проверяем, есть ли место в массиве ребер
+            edges[edgeCount][0] = v1; // записываем первую вершину в массив
+            edges[edgeCount][1] = v2; // записываем вторую вершину
+            edgeCount++;
+            addVertex(v1); // добавляем v1 в список вершин
+            addVertex(v2); // добавляем v2 в список вершин
+        } else {
+            System.out.println("Достигнуто максимальное число рёбер!");
         }
     }
 
-    // Построение списка смежности
-    public Map<Integer, Set<Integer>> buildAdjacencyList() {
-        Map<Integer, Set<Integer>> adjacencyList = new HashMap<>(); // Создаем пустой список смежности
-        for (int vertex : vertices) { // Проходимся по всем вершинам графа
-            adjacencyList.put(vertex, new HashSet<>()); // Для каждой вершины добавляем пустое множество
-        }
-        for (Edge edge : edges) { // Проходимся по всем ребрам графа
-            adjacencyList.get(edge.getFrom()).add(edge.getTo()); // Находим множество соседей начальной вершины и добавляем туда конечную вершину
-        }
-        return adjacencyList; // Возвращаем построенный список смежности
+    public void printEdges() {
+        System.out.println("Список рёбер:");
+        for (int i = 0; i < edgeCount; i++) // цикл проходится по всем ребрам, пока есть добавленные ребра
+            System.out.println(edges[i][0] + " -> " + edges[i][1]);
     }
 
+    public void printVerticesDescending() {
+        // создаём новый массив и копируем вершины
+        int[] sortedVertices = new int[vertexCount];
+        for (int i = 0; i < vertexCount; i++)
+            sortedVertices[i] = vertices[i]; // заполняем новый массив значениями из старого
 
-    // 9. Поиск компонент связности
-    public List<List<Integer>> getConnectedComponents(Graph graph) {
-        Map<Integer, Set<Integer>> adjacencyList = buildAdjacencyList(); // Строим список смежности
-        Set<Integer> visited = new HashSet<>(); // Множество для отслеживания посещенных вершин
-        List<List<Integer>> components = new ArrayList<>(); // Список для хранения компонент связности
-
-        // Проходим по всем вершинам графа
-        for (int vertex : graph.getVertices()) {
-            if (!visited.contains(vertex)) { // Если вершина ещё не посещена
-                List<Integer> component = new ArrayList<>(); // Текущая компонента связности
-                dfs(vertex, adjacencyList, visited, component); // Исследуем компоненту с помощью DFS
-                components.add(component); // Добавляем компоненту в список
-            }
-        }
-        return components; // Возвращаем все компоненты связности
-    }
-
-    // Вспомогательный метод для выполнения DFS (обход графа в глубину). Заполняет множество компонент для текущей компоненты связности
-    private void dfs(int vertex, Map<Integer, Set<Integer>> adjacencyList, Set<Integer> visited, List<Integer> component) {
-        visited.add(vertex); // Помечаем текущую вершину как посещённую
-        component.add(vertex); // Добавляем её в текущую компоненту
-
-        // Рекурсивно посещаем всех соседей вершины
-        for (int neighbor : adjacencyList.getOrDefault(vertex, new HashSet<>())) {
-            if (!visited.contains(neighbor)) { // Если сосед еще не посещен
-                dfs(neighbor, adjacencyList, visited, component);
-            }
-        }
-    }
-
-    // 10. Метод, который возвращает вершины, достижимые за не более чем 2 хода.
-    public static Set<Integer> getReachableVerticesIn2Moves(Graph graph, int start) { // start - начальная вершина
-
-        Map<Integer, Set<Integer>> adjacencyList = graph.buildAdjacencyList(); // Получаем список смежности из графа
-        Set<Integer> reachableVertices = new HashSet<>(); // Множество для хранения достижимых вершин
-        Set<Integer> firstStepVertices = adjacencyList.getOrDefault(start, new HashSet<>()); // Множество для хранения вершин, достижимых за 1 шаг (соседи)
-        reachableVertices.addAll(firstStepVertices); // Добавляем все вершины, достижимые за 1 шаг
-        Set<Integer> secondStepVertices = new HashSet<>(); // Теперь добавляем вершины, достижимые за 2 шага
-
-        for (int vertex : firstStepVertices) { // Итерация по вершинам, найденным на 1-м шаге
-            secondStepVertices.addAll(adjacencyList.getOrDefault(vertex, new HashSet<>()));
-        }
-        reachableVertices.addAll(secondStepVertices); // Добавляем в результат вершины, достижимые за 2 шага
-        reachableVertices.remove(start); // Убираем начальную вершину из результатов (если она есть)
-
-        return reachableVertices;
-    }
-
-    // 11. Поиск вершин, достижимых за заданное количество шагов
-    public static Set<Integer> getVerticesReachableInKSteps(Graph graph, int start, int steps) {
-        Set<Integer> reachable = new HashSet<>(); // мн-во будет содержать все вершины, которые достижимы за указанное количество шагов
-        Set<Integer> current = new HashSet<>(); // Мн-во  хранит вершины, которые достижимы на текущем шаге.
-        current.add(start); // изначально у нас есть только начальная вершина
-
-        for (int i = 0; i < steps; i++) {
-            Set<Integer> next = new HashSet<>(); // для каждого шага создаем новое мн-во
-            for (int vertex : current) { // проходимся по всем вершинам
-                if (graph.buildAdjacencyList().containsKey(vertex)) { // ищем соседей вершины
-                    next.addAll(graph.buildAdjacencyList().get(vertex));
+        // сортируем массив по убыванию (пузырьковая сортировка)
+        for (int i = 0; i < vertexCount - 1; i++) {
+            for (int j = 0; j < vertexCount - i - 1; j++) {
+                if (sortedVertices[j] < sortedVertices[j + 1]) { // сравниваем текущий элемент и следующий
+                    int temp = sortedVertices[j];
+                    sortedVertices[j] = sortedVertices[j + 1];
+                    sortedVertices[j + 1] = temp;
                 }
             }
-            reachable.addAll(next); // добавляем найденные вершины в мн-во next
-            current = next; // Множество current обновляется и становится равным next
         }
-        return reachable;
+        // Выводим отсортированные вершины
+        System.out.println("Вершины по убыванию:");
+        for (int i = 0; i < vertexCount; i++)
+            System.out.print(sortedVertices[i] + " ");
+        System.out.println();
     }
 
-    // 12. Сложение двух графов
-    public void sumGraphs(Graph other) { // other - другой граф для объединения
-        Graph sumGraph = new Graph(); // Создаём новый граф для результата
-        sumGraph.vertices.addAll(this.vertices); // Добавляем вершины из текущего графа
-        sumGraph.vertices.addAll(other.vertices); // Добавляем вершины из другого графа
-        sumGraph.edges.addAll(this.edges); // Добавляем рёбра из текущего графа
-        sumGraph.edges.addAll(other.edges);// Добавляем рёбра из другого графа
-    }
+    public void printVerticesWithIncomingEdgesMoreThan(int count) {
+        System.out.println("Вершины с входящими рёбрами больше " + count + ":");
 
-    // 13. Проверка на полноту графа
-    public boolean isComplete() {
-        int n = vertices.size(); // Количество вершин
-        int expectedEdges;
-        // Для направленного графа рёбер должно быть n * (n - 1)
-        if (directed)
-            expectedEdges = n * (n - 1);
-        else
-            // Для ненаправленного графа рёбер должно быть (n * (n - 1)) / 2
-            expectedEdges = (n * (n - 1)) / 2;
-        return edges.size() == expectedEdges; // Сравниваем текущее количество рёбер с ожидаемым
-    }
+        for (int i = 0; i < vertexCount; i++) { // перебираем вершины
+            int v = vertices[i];
+            int incoming = 0; // создаем счетчик входящих ребер
 
-    // 14. Проверка на пустоту графа
-    public boolean isEmpty() {
-        return edges.isEmpty(); // Если список рёбер пуст, граф пустой
-    }
-
-    // Получение множества всех вершин графа
-    public Set<Integer> getVertices() {
-        return new HashSet<>(vertices);
-    }
-
-    // 15. Проверяем, есть ли в графе вершины, которые соединены только с собой (имеют только петли).
-    public boolean hasVerticesWithOnly(Map<Integer, Set<Integer>> adjacencyList) { // adjacencyList - список смежности графа
-        // Проходим по каждой вершине в списке смежности
-        for (Map.Entry<Integer, Set<Integer>> entry : adjacencyList.entrySet()) { // Итерация по каждой паре (Map.Entry) из списка смежности
-            int vertex = entry.getKey(); // Получаем ключ текущей пары, который представляет вершину графа (vertex)
-            Set<Integer> neighbors = entry.getValue(); // Получаем значение текущей пары, которое представляет множество соседей вершины (neighbors)
-
-            // Условие: если у вершины есть только одно ребро, и это ребро — петля (ведет обратно к самой вершине)
-            if (neighbors.size() == 1 && neighbors.contains(vertex)) {
-                return true; // Найдена хотя бы одна вершина, соединённая только с собой
+            for (int j = 0; j < edgeCount; j++) { // подсчёт входящих рёбер
+                if (edges[j][1] == v) // проверяем, является ли v конечной точкой ребра.
+                    incoming++;
+            }
+            if (incoming > count) { // проверка на превышение
+                System.out.print(v + " ");
             }
         }
-        // Если не нашли таких вершин, возвращаем false
+        System.out.println();
+    }
+
+    public void removeEdge(int v1, int v2) {
+        if (edgeCount == 0) { // проверка на пустой граф
+            System.out.println("Граф не содержит рёбер.");
+            return;
+        }
+        for (int i = 0; i < edgeCount; i++) { // проходим по всем ребрам
+            if (edges[i][0] == v1 && edges[i][1] == v2) {
+                edges[i] = edges[edgeCount - 1]; // заменяем удаляемое ребро последним
+                edgeCount--; // уменьшаем кол-во ребер
+                System.out.println("Ребро " + v1 + " -> " + v2 + " удалено.");
+                return;
+            }
+        }
+        System.out.println("Ребро " + v1 + " -> " + v2 + " не найдено.");
+    }
+
+    public void removeVertex(int v) {
+        // удаление рёбер, связанных с v
+        int index = 0;
+        for (int i = 0; i < edgeCount; i++) {
+            if (edges[i][0] != v && edges[i][1] != v) {
+                edges[index] = edges[i];// сдвигаем рёбра в начало массива
+                index++;
+            }
+        }
+        edgeCount = index; // Обновляем количество рёбер
+
+        // Удаление самой вершины
+        index = 0;
+        for (int i = 0; i < vertexCount; i++) {
+            if (vertices[i] != v) {
+                vertices[index] = vertices[i]; // Сдвигаем вершины в начало массива
+                index++;
+            }
+        }
+        vertexCount = index; // Обновляем количество вершин
+
+        System.out.println("Вершина " + v + " и её рёбра удалены.");
+    }
+
+    public void removeVerticesWithFewestIncomingEdges() {
+        if (vertexCount == 0) return; // выходим, если вершин нет
+
+        int[] incomingEdges = new int[vertexCount]; // массив для хранения входящих ребер для каждой вершины
+
+        // подсчёт входящих рёбер (без учёта петель)
+        for (int i = 0; i < edgeCount; i++) {
+            if (edges[i][0] != edges[i][1]) { // исключаем петли
+                for (int j = 0; j < vertexCount; j++) { // ищем индекс вершины
+                    if (vertices[j] == edges[i][1]) { // Нашли вершину-получатель
+                        incomingEdges[j]++;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // находим минимальное количество входящих рёбер
+        int minIncoming = incomingEdges[0]; // берём первое значение как стартовое
+        for (int i = 1; i < vertexCount; i++) {
+            if (incomingEdges[i] < minIncoming) {
+                minIncoming = incomingEdges[i];
+            }
+        }
+
+        // удаляем вершины с минимальным числом входящих рёбер
+        for (int i = 0; i < vertexCount; i++) {
+            if (incomingEdges[i] == minIncoming) {
+                removeVertex(vertices[i]);
+                i--; // корректируем индекс после удаления
+            }
+        }
+    }
+
+    public int countConnectedComponents() {
+        boolean[] visited = new boolean[vertexCount]; // массив для отслеживания посещенных вершин
+        int count = 0;
+
+        for (int i = 0; i < vertexCount; i++) {
+            if (!visited[i]) { // если вершина не посещена
+                dfs(i, visited); // запускаем обход в глубину
+                count++;
+            }
+        }
+        System.out.println("Количество компонент связности: " + count);
+        return count;
+    }
+
+    private void dfs(int vIndex, boolean[] visited) {
+        visited[vIndex] = true; // помечаем текущую вершину как посещенную
+        for (int i = 0; i < edgeCount; i++) {
+            if (edges[i][0] == vertices[vIndex] && !visited[getVertexIndex(edges[i][1])]) { // если вершина совпадает с текущейи  она не посещена
+                dfs(getVertexIndex(edges[i][1]), visited); // вызываем dfs для соседней вершины
+            }
+            if (edges[i][1] == vertices[vIndex] && !visited[getVertexIndex(edges[i][0])]) {
+                dfs(getVertexIndex(edges[i][0]), visited); // то же самого для второго конца ребра
+            }
+        }
+    }
+
+    private int getVertexIndex(int v) {
+        for (int i = 0; i < vertexCount; i++) {
+            if (vertices[i] == v) // если нашли нужную вершину
+                return i; // возвращаем ее индекс
+        }
+        return -1; // если вершина не найдена
+    }
+
+
+    public int[][] findConnectedComponents() {
+        boolean[] visited = new boolean[vertexCount]; // создаем массив для отслеживания посещенных вершин
+        int componentCount = countConnectedComponents(); // количество компонент
+        int[][] result = new int[componentCount][]; // массив для хранения компонент
+        int componentIndex = 0; // используем для отслеживания номера текущей компоненты
+
+        System.out.println("Компоненты связности:");
+
+        for (int i = 0; i < vertexCount; i++) {
+            if (!visited[i]) { // если вершина не была посещена
+                int[] component = new int[vertexCount]; // максимальный возможный размер
+                int size = 0; // счётчик количества вершин в текущей компоненте
+
+                // запускаем dfs для сбора компонент
+                size = dfsCollect(i, visited, component, size);
+
+                int[] finalComponent = new int[size]; // создаем массив нужного размера
+                for (int j = 0; j < size; j++)
+                    finalComponent[j] = component[j];
+
+
+                result[componentIndex] = finalComponent;
+                componentIndex++; // уведичиваем индекс для следующей компоненты и храним все найденные компоненты
+
+                // Выводим найденную компоненту связности
+                System.out.print("{ ");
+                for (int j = 0; j < size; j++)
+                    System.out.print(finalComponent[j] + " ");
+
+                System.out.println("}");
+            }
+        }
+
+        return result;
+    }
+
+    private int dfsCollect(int vIndex, boolean[] visited, int[] component, int size) {
+        visited[vIndex] = true; // помечаем вершину как посещенную
+        component[size++] = vertices[vIndex]; // добавляем вершину в компоненту
+
+        for (int i = 0; i < edgeCount; i++) {
+            int neighborIndex = -1; // храним индекс соседней вершины
+            if (edges[i][0] == vertices[vIndex]) // если первая вершина в ребре совпадает с текущей
+                neighborIndex = getVertexIndex(edges[i][1]); // получаем индекс его соседа - edges[i][1]
+            else if (edges[i][1] == vertices[vIndex]) // если вторая вершина в ребре совпадает с текущей
+                neighborIndex = getVertexIndex(edges[i][0]); // значит получаем индекс его соседа - edges[i][0]
+
+
+            if (neighborIndex != -1 && !visited[neighborIndex])  // если индекс вершины корректный и вершина еще не была посещена
+                size = dfsCollect(neighborIndex, visited, component, size); // рекурсивно вызываем dfsCollect() для соседней вершины
+
+        }
+        return size; // возвращаем общее число вершин в текущей компоненте
+    }
+
+    public void printVerticesReachableInTwoSteps(int startVertex) {
+        int[] reachable = new int[vertexCount]; // массив достижимых вершин
+        boolean[] visited = new boolean[vertexCount]; // массив посещённых вершин
+        int count = 0; // счётчик достижимых вершин
+
+        // находим соседей переданной вершины (вершины, достижимые за 1 ход)
+        for (int i = 0; i < edgeCount; i++) {
+            if (edges[i][0] == startVertex && !visited[getVertexIndex(edges[i][1])]) { // если startVertex совпадает с edges[i][0], значит edges[i][1] — его сосед
+                visited[getVertexIndex(edges[i][1])] = true; // помечаем вершину как посещенную
+                reachable[count] = edges[i][1]; // добавляем в новый массив
+                count++;
+            } else if (edges[i][1] == startVertex && !visited[getVertexIndex(edges[i][0])]) { // если startVertex совпадает с edges[i][1], значит edges[i][0] — его сосед
+                visited[getVertexIndex(edges[i][0])] = true;
+                reachable[count] = edges[i][0]; // добавляем в тот же массив
+                count++;
+            }
+        }
+
+        // затем ищем соседей уже найденных вершин (достижимые за 2 хода)
+        int currentCount = count; // сохраняем текущее количество вершин первого шага
+        for (int i = 0; i < currentCount; i++) { // цикл идет только по вершинам, найденным на первом шаге
+            int vertex = reachable[i]; // получаем i-ю вершину из reachable[]
+            for (int j = 0; j < edgeCount; j++) {
+                if (edges[j][0] == vertex && !visited[getVertexIndex(edges[j][1])]) { // проверяем, начинается ли текущее ребро из vertex и, Если второй конец ребра ещё не был найден ранее, добавляем его в reachable[]
+                    visited[getVertexIndex(edges[j][1])] = true; // помечаем вершину как посещенную
+                    reachable[count] = edges[j][1]; // добавляем ее в список достижимых
+                    count++;
+                } else if (edges[j][1] == vertex && !visited[getVertexIndex(edges[j][0])]) { // аналогичная проверка для второго конца ребра
+                    visited[getVertexIndex(edges[j][0])] = true;
+                    reachable[count] = edges[j][0];
+                    count++;
+                }
+            }
+        }
+
+        // выводим результат
+        System.out.print("Вершины, достижимые из " + startVertex + " за 2 хода: ");
+        for (int i = 0; i < count; i++)
+            System.out.print(reachable[i] + " ");
+
+        System.out.println();
+    }
+
+    public void printVerticesReachableInSteps(int startVertex, int maxSteps) {
+        boolean[] visited = new boolean[vertexCount]; // массив посещённых вершин
+        int[] reachable = new int[vertexCount]; // массив достижимых вершин
+        int count = 0; // счётчик достижимых вершин
+
+        visited[getVertexIndex(startVertex)] = true; // отмечаем стартовую вершину как посещённую
+
+        int[] currentLevel = new int[vertexCount]; // вершины текущего уровня (текущего хода)
+        int[] nextLevel = new int[vertexCount]; // вершины следующего уровня
+        int currentCount = 0, nextCount = 0;
+
+        // начинаем поиск с соседей startVertex
+        for (int i = 0; i < edgeCount; i++) {
+            if (edges[i][0] == startVertex && !visited[getVertexIndex(edges[i][1])]) { // если startVertex является первой вершиной текущего ребра и вторая вершина еще не была посещена
+                visited[getVertexIndex(edges[i][1])] = true; // помечаем вершину как посещенную
+                currentLevel[currentCount++] = edges[i][1]; // добавляем найденную вершину в массив текущего уровня, чтобы затем искать её соседей
+                reachable[count++] = edges[i][1]; // добавляем вершину в список всех достижимых вершин
+            } else if (edges[i][1] == startVertex && !visited[getVertexIndex(edges[i][0])]) { // аналогично проверяем для случая где startVertex явл. второй вершиной ребра
+                visited[getVertexIndex(edges[i][0])] = true;
+                currentLevel[currentCount++] = edges[i][0];
+                reachable[count++] = edges[i][0];
+            }
+        }
+
+        // ищем вершины на следующих уровнях (до maxSteps шагов)
+        for (int step = 1; step < maxSteps; step++) {
+            nextCount = 0; // кол-во вершин след. уровня
+            for (int i = 0; i < currentCount; i++) { // перебор всех вершин, найденных на предыдущем шаге
+                int vertex = currentLevel[i];
+                for (int j = 0; j < edgeCount; j++) { // перебираем ребра
+                    if (edges[j][0] == vertex && !visited[getVertexIndex(edges[j][1])]) {
+                        visited[getVertexIndex(edges[j][1])] = true;
+                        nextLevel[nextCount++] = edges[j][1]; // добавляем посещенную вершину в nextLevel, так как она будет участвовать в следующем шаге
+                        reachable[count++] = edges[j][1]; // добавляем в reachable, так как она достижима в ≤ maxSteps ходов
+                    } else if (edges[j][1] == vertex && !visited[getVertexIndex(edges[j][0])]) {
+                        visited[getVertexIndex(edges[j][0])] = true;
+                        nextLevel[nextCount++] = edges[j][0];
+                        reachable[count++] = edges[j][0];
+                    }
+                }
+            }
+
+            // меняем текущий уровень на следующий
+            int[] temp = currentLevel;
+            currentLevel = nextLevel;
+            nextLevel = temp;
+            currentCount = nextCount;
+        }
+
+        // Вывод результата
+        System.out.print("Вершины, достижимые из " + startVertex + " за не более чем " + maxSteps + " ходов: ");
+        for (int i = 0; i < count; i++)
+            System.out.print(reachable[i] + " ");
+
+        System.out.println();
+    }
+
+    public void mergeGraph(Graph other) {
+        // добавляем вершины из второго графа, если их нет в первом графе
+        for (int i = 0; i < other.vertexCount; i++) { // перебираем все вершины во 2 графе
+            if (!containsVertex(other.vertices[i])) { // проверяем, есть ли эта вершина в текущем графе
+                vertices[vertexCount] = other.vertices[i]; // добавляем вершину в массив
+                vertexCount++; // увеличиваем счетчик
+            }
+        }
+
+        // Добавляем рёбра из второго графа, если их нет в первом графе
+        for (int i = 0; i < other.edgeCount; i++) { // перебор ребер из второго графа
+            int v1 = other.edges[i][0];
+            int v2 = other.edges[i][1]; // берем 1 и 2 вершины текущего ребра
+            if (!containsEdge(v1, v2)) { // проверяем, есть ли уже такое ребро в текущем графе (this)
+                edges[edgeCount][0] = v1; // записываем первую вершину нового ребра в массив edges
+                edges[edgeCount][1] = v2; // записываем вторую вершину нового ребра
+                edgeCount++; // увеличиваем счетчик ребер
+            }
+        }
+    }
+
+    // проверяем, содержится ли вершина в текущем графе
+    private boolean containsVertex(int vertex) {
+        for (int i = 0; i < vertexCount; i++) { // перебираем веершины
+            if (vertices[i] == vertex)
+                return true;
+        }
         return false;
+    }
+
+    // проверяем, существует ли уже такое ребро в текущем графе
+    private boolean containsEdge(int v1, int v2) {
+        for (int i = 0; i < edgeCount; i++) {
+            if ((edges[i][0] == v1 && edges[i][1] == v2)) { // проверяем оба направления
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isCompleteGraph() {
+        if (vertexCount < 2) {
+            System.out.println("Граф полный? true (0 или 1 вершина)");
+        return true; // граф с 0 или 1 вершиной считается полным
+    }
+        int maxEdges = (vertexCount * (vertexCount - 1)) / 2; // максимальное число рёбер в полном графе
+        boolean isComplete = edgeCount == maxEdges;
+
+        System.out.println("Граф полный? " + isComplete);
+        return isComplete;
+    }
+
+    public boolean isEmptyGraph() {
+        boolean isEmpty = (vertexCount == 0 || edgeCount == 0); // граф пустой, если нет вершин или нет рёбер
+
+        System.out.println("Граф пустой? " + isEmpty);
+        return isEmpty;
+    }
+
+    public boolean hasOnlySelfLoops() {
+        boolean[] hasEdge = new boolean[vertexCount]; // массив для отметки вершин, имеющих связи с другими
+
+        for (int i = 0; i < edgeCount; i++) {
+            int v1 = edges[i][0];
+            int v2 = edges[i][1];
+
+            if (v1 != v2) { // если есть хотя бы одно ребро, не являющееся петлёй
+                hasEdge[getVertexIndex(v1)] = true;
+                hasEdge[getVertexIndex(v2)] = true;
+            }
+        }
+
+        // проверяем, есть ли вершина, у которой нет внешних связей
+        boolean found = false;
+        for (int i = 0; i < vertexCount; i++) {
+            if (!hasEdge[i]) { // вершина не имеет внешних рёбер (либо только петли, либо вообще нет рёбер)
+                found = true;
+                break;
+            }
+        }
+
+        System.out.println("Есть ли вершины, соединённые только с собой? " + found);
+        return found;
     }
 }
