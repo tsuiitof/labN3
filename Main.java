@@ -2,7 +2,7 @@ public class Main {
     public static void main(String[] args) {
         Graph graph = new Graph(20, 20);
 
-        // 1. Добавление рёбер
+        // Добавление рёбер
         graph.addEdge(1, 2);
         graph.addEdge(2, 4);
         graph.addEdge(1, 3);
@@ -16,13 +16,13 @@ public class Main {
         graph.addEdge(8, 10);
         graph.addEdge(9, 10);
 
-        // 2. Выводим список рёбер
+        // Выводим список рёбер
         graph.printEdges();
 
-        // 3. Выводим вершины по убыванию
+        // Выводим вершины по убыванию
         graph.printVerticesDescending();
 
-        // 4. Поиск вершин с входящими рёбрами больше заданного числа
+        // Поиск вершин с входящими рёбрами больше заданного числа
         graph.printVerticesWithIncomingEdgesMoreThan(1);
 
         // 5. Удаление ребра
@@ -85,6 +85,6 @@ public class Main {
         graph1.isEmptyGraph();
 
         // 15. Наличие петель в графе
-        graph1.hasOnlySelfLoops();
+        graph1.hasSelfLoop();
     }
 }
