@@ -38,6 +38,8 @@ class Graph {
         }
     }
 
+    // 1. Добавление ребра
+
     public void addEdge(int v1, int v2) {
         if (edgeExists(v1, v2)) { // проверяем, есть ли уже такое ребро
             System.out.println("Ребро " + v1 + " -> " + v2 + " уже существует!");
@@ -55,11 +57,15 @@ class Graph {
         }
     }
 
+    // 2. Вывод ребер
+
     public void printEdges() {
         System.out.println("Список рёбер:");
         for (int i = 0; i < edgeCount; i++) // цикл проходится по всем ребрам, пока есть добавленные ребра
             System.out.println(edges[i][0] + " -> " + edges[i][1]);
     }
+
+    // 3. Вывод вершин по убыванию номера
 
     public void printVerticesDescending() {
         // создаём новый массив и копируем вершины
@@ -84,6 +90,8 @@ class Graph {
         System.out.println();
     }
 
+    // 4. Вершины с входящими рёбрами больше заданного числа
+
     public void printVerticesWithIncomingEdgesMoreThan(int count) {
         System.out.println("Вершины с входящими рёбрами больше " + count + ":");
 
@@ -102,6 +110,8 @@ class Graph {
         System.out.println();
     }
 
+    // 5. Удаление ребра
+
     public void removeEdge(int v1, int v2) {
         if (edgeCount == 0) { // проверка на пустой граф
             System.out.println("Граф не содержит рёбер.");
@@ -117,6 +127,8 @@ class Graph {
         }
         System.out.println("Ребро " + v1 + " -> " + v2 + " не найдено.");
     }
+
+    // 6. Удаление вершины
 
     public void removeVertex(int v) {
         // удаление рёбер, связанных с v
@@ -141,6 +153,8 @@ class Graph {
 
         System.out.println("Вершина " + v + " и её рёбра удалены.");
     }
+
+    // 7. Удаление вершин с наименьшим количеством входящих рёбер (без учёта петель)
 
     public void removeVerticesWithFewestIncomingEdges() {
         if (vertexCount == 0) return; // выходим, если вершин нет
@@ -176,6 +190,8 @@ class Graph {
         }
     }
 
+    // 8. Подсчёт количества компонент связности
+
     public int countConnectedComponents() {
         boolean[] visited = new boolean[vertexCount]; // массив для отслеживания посещенных вершин
         int count = 0;
@@ -209,6 +225,8 @@ class Graph {
         }
         return -1; // если вершина не найдена
     }
+
+    // 9. Поиск компонент связности
 
 
     public int[][] findConnectedComponents() {
@@ -266,6 +284,8 @@ class Graph {
         return size; // возвращаем общее число вершин в текущей компоненте
     }
 
+    // 10. Вершины, достижимые за 2 хода
+
     public void printVerticesReachableInTwoSteps(int startVertex) {
         int[] reachable = new int[vertexCount]; // массив достижимых вершин
         boolean[] visited = new boolean[vertexCount]; // массив посещённых вершин
@@ -308,6 +328,8 @@ class Graph {
 
         System.out.println();
     }
+
+    // 11. Вершины, достижимые за заданное количество ходов
 
     public void printVerticesReachableInSteps(int startVertex, int maxSteps) {
         boolean[] visited = new boolean[vertexCount]; // массив посещённых вершин
@@ -366,6 +388,8 @@ class Graph {
         System.out.println();
     }
 
+    // 12. Сложение двух графов
+
     public void mergeGraph(Graph other) {
         // добавляем вершины из второго графа, если их нет в первом графе
         for (int i = 0; i < other.vertexCount; i++) { // перебираем все вершины во 2 графе
@@ -406,6 +430,8 @@ class Graph {
         return false;
     }
 
+    // 13. Проверка на полноту графа
+
     public boolean isCompleteGraph() {
         if (vertexCount < 2) {
             System.out.println("Граф полный? true (0 или 1 вершина)");
@@ -418,6 +444,8 @@ class Graph {
         return isComplete;
     }
 
+    // 14. Проверка на пустоту графа
+
     public boolean isEmptyGraph() {
         boolean isEmpty = (vertexCount == 0 || edgeCount == 0); // граф пустой, если нет вершин или нет рёбер
 
@@ -425,29 +453,17 @@ class Graph {
         return isEmpty;
     }
 
-    public boolean hasOnlySelfLoops() {
-        boolean[] hasEdge = new boolean[vertexCount]; // массив для отметки вершин, имеющих связи с другими
+    // 15. Проверка на наличие вершин, соединённых только с собой
 
-        for (int i = 0; i < edgeCount; i++) {
-            int v1 = edges[i][0];
-            int v2 = edges[i][1];
-
-            if (v1 != v2) { // если есть хотя бы одно ребро, не являющееся петлёй
-                hasEdge[getVertexIndex(v1)] = true;
-                hasEdge[getVertexIndex(v2)] = true;
+    public boolean hasSelfLoop() {
+        for (int i = 0; i < edgeCount; i++) { // перебираем все рёбра
+            if (edges[i][0] == edges[i][1]) { // если вершина соединена сама с собой
+                System.out.println("В графе есть хотя бы одна петля");
+                return true; // нашли петлю, сразу возвращаем true
             }
         }
-
-        // проверяем, есть ли вершина, у которой нет внешних связей
-        boolean found = false;
-        for (int i = 0; i < vertexCount; i++) {
-            if (!hasEdge[i]) { // вершина не имеет внешних рёбер (либо только петли, либо вообще нет рёбер)
-                found = true;
-                break;
-            }
-        }
-
-        System.out.println("Есть ли вершины, соединённые только с собой? " + found);
-        return found;
+        System.out.println("В графе нет петель");
+        return false; // если не нашли ни одной петли
     }
+
 }
