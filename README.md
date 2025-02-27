@@ -506,6 +506,7 @@ graph.printEdges(); - проверка
 ```  
 
 Затем создаем второй граф для объединения его с первым и получаем новый граф: 
+
 11. graph1.mergeGraph(graph2);
         graph1.printEdges();
 
