@@ -506,6 +506,8 @@ graph.printEdges(); - проверка
 ```  
 
 Затем создаем второй граф для объединения его с первым и получаем новый граф: 
+![image](https://github.com/user-attachments/assets/1b0cae23-119d-43cf-be3e-b94e07df43c4)
+
 
 11. graph1.mergeGraph(graph2);
         graph1.printEdges();
